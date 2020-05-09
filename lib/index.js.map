@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/index.js"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;AAAA;;AACA","sourcesContent":["import TextEditor from \"./TextEditor.js\";\nimport BrowserTextEditor from \"./browser/BrowserTextEditor.js\";\n\nexport {\n    TextEditor,\n    BrowserTextEditor\n}\n"],"file":"index.js"}

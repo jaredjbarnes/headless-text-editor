@@ -1,0 +1,186 @@
+import Editor from '../TextEditor';
+test('TextEditor: Set and get text.', () => {
+    const editor = new Editor();
+    const text = 'My text.';
+    editor.setText(text);
+    const editorText = editor.getText();
+    expect(editorText).toBe(text);
+});
+test('TextEditor: Replace text.', () => {
+    const editor = new Editor();
+    const text = 'My text.';
+    editor.setText(text);
+    editor.replaceText(3, 8, 'awesome text.');
+    const editorText = editor.getText();
+    expect(editorText).toBe('My awesome text.');
+});
+test('Editor: Replace simple example.', () => {
+    const editor = new Editor();
+    const text = 'Cat';
+    editor.setText(text);
+    editor.replaceText(0, 1, 'B');
+    const editorText = editor.getText();
+    expect(editorText).toBe('Bat');
+});
+test('Editor: Remove text.', () => {
+    const editor = new Editor();
+    const text = 'My text.';
+    editor.setText(text);
+    editor.removeText(2, 8);
+    const editorText = editor.getText();
+    expect(editorText).toBe('My');
+});
+test('Editor: Move cursor.', () => {
+    const editor = new Editor();
+    const text = 'My text.';
+    editor.setText(text);
+    editor.moveCursor(7);
+    expect(editor.cursor.startIndex).toBe(7);
+    editor.moveCursor(8);
+    expect(editor.cursor.startIndex).toBe(8);
+    editor.moveCursor(9);
+    expect(editor.cursor.startIndex).toBe(8);
+    editor.moveCursor(0);
+    expect(editor.cursor.startIndex).toBe(0);
+    editor.moveCursor(-1);
+    expect(editor.cursor.startIndex).toBe(0);
+    editor.moveCursor(5);
+    expect(editor.cursor.startIndex).toBe(5);
+});
+test('Editor: Insert text.', () => {
+    const editor = new Editor();
+    const text = 'My text.';
+    editor.setText(text);
+    editor.moveCursor(8);
+    editor.insert(' I love my text.');
+    let editorText = editor.getText();
+    expect(editorText).toBe('My text. I love my text.');
+    editor.moveCursor(0);
+    editor.insert('Text has many colors. ');
+    editorText = editor.getText();
+    expect(editorText).toBe('Text has many colors. My text. I love my text.');
+    editor.moveCursor(editor.text.length - 1);
+    editor.insert('s');
+    editorText = editor.getText();
+    expect(editorText).toBe('Text has many colors. My text. I love my texts.');
+});
+test('Editor: Insert text with selection.', () => {
+    const editor = new Editor();
+    const text = 'Select this text and this text.';
+    editor.setText(text);
+    editor.addRange(7, 16);
+    editor.addRange(21, 30);
+    editor.insert('this stuff');
+    const editorText = editor.getText();
+    expect(editorText).toBe('Select this stuff and this stuff.');
+});
+test('Editor: backspace.', () => {
+    const editor = new Editor();
+    const text = 'Select this text and this text.';
+    editor.setText(text);
+    editor.moveCursor(6);
+    editor.backspace();
+    const editorText = editor.getText();
+    expect(editorText).toBe('Selec this text and this text.');
+});
+test('Editor: observing.', () => {
+    // The onchange fires on every cursor position change, decoration change and text change.
+    let observerCount = 0;
+    const editor = new Editor();
+    const text = 'Select this text and this text.';
+    editor.onChange(() => {
+        observerCount++;
+    });
+    editor.setText(text);
+    editor.moveCursor(6);
+    editor.backspace();
+    editor.insert('t');
+    const editorText = editor.getText();
+    expect(editorText).toBe('Select this text and this text.');
+    expect(observerCount).toBe(5);
+});
+test('Editor: moveCursorDown.', () => {
+    const editor = new Editor();
+    const text = '1\n2\n3\n4\n5\n6';
+    editor.setText(text);
+    editor.moveCursorDown();
+    expect(editor.cursor.startIndex).toBe(2);
+    editor.moveCursorDown();
+    expect(editor.cursor.startIndex).toBe(4);
+    editor.moveCursorDown();
+    expect(editor.cursor.startIndex).toBe(6);
+    editor.moveCursorDown();
+    expect(editor.cursor.startIndex).toBe(8);
+    editor.moveCursorDown();
+    expect(editor.cursor.startIndex).toBe(10);
+    editor.moveCursorDown();
+    expect(editor.cursor.startIndex).toBe(10);
+});
+test('Editor: moveCursorUp.', () => {
+    const editor = new Editor();
+    const text = '1\n2\n3\n4\n5\n6';
+    editor.setText(text);
+    editor.moveCursor(10);
+    editor.moveCursorUp();
+    expect(editor.cursor.startIndex).toBe(8);
+    editor.moveCursorUp();
+    expect(editor.cursor.startIndex).toBe(6);
+    editor.moveCursorUp();
+    expect(editor.cursor.startIndex).toBe(4);
+    editor.moveCursorUp();
+    expect(editor.cursor.startIndex).toBe(2);
+    editor.moveCursorUp();
+    expect(editor.cursor.startIndex).toBe(0);
+    editor.moveCursorUp();
+    expect(editor.cursor.startIndex).toBe(0);
+});
+test('Editor: columns.', () => {
+    const editor = new Editor();
+    const text = '1234\n1234\n1234\n1234\n1234\n1234';
+    editor.setText(text);
+    editor.moveCursorDown();
+    expect(editor.cursor.startIndex).toBe(5);
+    expect(editor.getCharacterAtCursor()).toBe('1');
+    editor.moveCursorDown();
+    expect(editor.cursor.startIndex).toBe(10);
+    expect(editor.getCharacterAtCursor()).toBe('1');
+    editor.moveCursor(11);
+    expect(editor.getCharacterAtCursor()).toBe('2');
+    editor.moveCursorUp();
+    expect(editor.cursor.startIndex).toBe(6);
+    expect(editor.getCharacterAtCursor()).toBe('2');
+    editor.moveCursor(7);
+    editor.moveCursorDown();
+    expect(editor.cursor.startIndex).toBe(12);
+    expect(editor.getCharacterAtCursor()).toBe('3');
+});
+test('Editor: getCharacterAtCursor.', () => {
+    const editor = new Editor();
+    const text = '1234\n1234\n1234\n1234\n1234\n1234';
+    editor.setText(text);
+    expect(editor.getCharacterAtCursor()).toBe('1');
+    editor.moveCursor(1);
+    expect(editor.getCharacterAtCursor()).toBe('2');
+});
+test('Editor: getPositionForIndex.', () => {
+    const editor = new Editor();
+    const text = '1234\n1234\n1234\n1234\n1234\n1234';
+    editor.setText(text);
+    editor.moveCursor(24);
+    let position = editor.getPositionForIndex(24);
+    expect(position === null || position === void 0 ? void 0 : position.column).toBe(4);
+    expect(position === null || position === void 0 ? void 0 : position.row).toBe(4);
+    position = editor.getPositionForIndex(25);
+    expect(position === null || position === void 0 ? void 0 : position.column).toBe(0);
+    expect(position === null || position === void 0 ? void 0 : position.row).toBe(5);
+});
+test('Editor: add, and remove decoration.', () => {
+    const editor = new Editor();
+    const text = '1234\n1234\n1234\n1234\n1234\n1234';
+    const decoration = { type: 'test', startIndex: 0, endIndex: 5 };
+    editor.setText(text);
+    editor.addDecoration(decoration);
+    expect(editor.decorations.filter(d => d.type === 'test').length).toBe(1);
+    editor.removeDecoration(decoration);
+    expect(editor.decorations.filter(d => d.type === 'test').length).toBe(0);
+});

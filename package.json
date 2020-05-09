@@ -1,0 +1,23 @@
+{
+  "name": "headless-text-editor",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "jest src/__tests__",
+    "build": "npx babel src --out-dir lib --source-maps && npx webpack --mode=none --config webpack.config.js",
+    "coverage": "nyc npm run test"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "jest": "^25.4.0",
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/preset-env": "^7.3.4",
+    "fs-extra": "^7.0.1",
+    "nyc": "^14.1.1",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  },
+  "dependencies": {}
+}
